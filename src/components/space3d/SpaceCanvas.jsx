@@ -1,39 +1,42 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, Stars } from '@react-three/drei';
-import PlanetSystem from './PlanetSystem';
+import { Stars, Float } from '@react-three/drei';
+import Earth from './Earth';
+import SpaceshipWithAstronaut from './SpaceshipWithAstronaut';
 import SpaceStation from './SpaceStation';
-import Spaceship from './Spaceship';
+import NebulaBackground from './NebulaBackground';
 
 function DynamicScene({ scrollY, mousePos }) {
   const groupRef = useRef();
 
   useFrame((state) => {
-    // Scroll height shifts camera position depth-wise across the solar system
-    const targetZ = 16 - scrollY * 0.012;
-    const targetY = -scrollY * 0.008;
-    const targetRotY = scrollY * 0.0005;
+    const targetZ = 16 - scrollY * 0.008;
+    const targetY = -scrollY * 0.005;
 
     state.camera.position.z += (targetZ - state.camera.position.z) * 0.05;
     state.camera.position.y += (targetY - state.camera.position.y) * 0.05;
 
-    // Interactive Mouse Tilt
-    state.camera.rotation.y = targetRotY + mousePos.x * 0.1;
-    state.camera.rotation.x = -mousePos.y * 0.08;
+    state.camera.rotation.y = (scrollY * 0.0003) + mousePos.x * 0.08;
+    state.camera.rotation.x = -mousePos.y * 0.06;
   });
 
   return (
     <group ref={groupRef}>
-      <Stars radius={120} depth={60} count={7000} factor={5} saturation={0} fade speed={1.5} />
-      
-      {/* Player Spaceship floating with player mouse movements */}
-      <Spaceship mousePos={mousePos} />
+      <Stars radius={150} depth={60} count={9000} factor={6} saturation={0} fade speed={1.2} />
 
-      <Float speed={1.5} rotationIntensity={0.3} floatIntensity={0.6}>
-        <SpaceStation isDashboardView={false} />
-      </Float>
+      <NebulaBackground />
 
-      <PlanetSystem />
+      <SpaceshipWithAstronaut mousePos={mousePos} />
+
+      <React.Suspense fallback={null}>
+        <Earth />
+      </React.Suspense>
+
+      <group position={[-7, 1.5, -8]} scale={[0.6, 0.6, 0.6]}>
+        <Float speed={1.2} rotationIntensity={0.2} floatIntensity={0.4}>
+          <SpaceStation isDashboardView={false} />
+        </Float>
+      </group>
     </group>
   );
 }
@@ -62,9 +65,9 @@ export default function SpaceCanvas() {
   return (
     <div className="fixed inset-0 z-0 bg-slate-950 pointer-events-none">
       <Canvas camera={{ position: [0, 0, 16], fov: 60 }}>
-        <ambientLight intensity={0.5} />
-        <pointLight position={[20, 20, 20]} intensity={1.8} color="#38bdf8" />
-        <directionalLight position={[-10, -10, -10]} intensity={0.6} color="#a855f7" />
+        <ambientLight intensity={0.9} />
+        <directionalLight position={[12, 8, 10]} intensity={2.8} color="#ffffff" />
+        <pointLight position={[-10, -10, -10]} intensity={0.6} color="#38bdf8" />
 
         <DynamicScene scrollY={scrollY} mousePos={mousePos} />
       </Canvas>
